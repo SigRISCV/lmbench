@@ -25,7 +25,7 @@ typedef unsigned char bool_t;
 #include        <errno.h>
 #include	<math.h>
 #ifndef WIN32
-#include        <strings.h>
+#include        <string.h>
 #endif
 #include        <sys/types.h>
 #ifndef WIN32
