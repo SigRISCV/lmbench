@@ -30,7 +30,7 @@ char   *optarg;		/* argument to an option */
 static int n;
 
 int
-getopt(int ac, char **av, char *opts)
+getopt(int ac, char * __raw *av, char *opts)
 {
 	char	*t;
 

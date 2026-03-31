@@ -13,6 +13,7 @@
  * (2) the version in the sccsid below is included in the report.
  * Support for this development by Sun Microsystems is gratefully acknowledged.
  */
+#include <signal.h>
 #define	 _LIB /* bench.h needs this */
 #include "bench.h"
 
@@ -29,7 +30,7 @@
 #define	KB	(1000.0)
 
 static struct timeval 	start_tv, stop_tv;
-FILE			*ftiming;
+__raw FILE *ftiming;
 static volatile uint64	use_result_dummy;
 static		uint64	iterations;
 static		void	init_timing(void);
@@ -67,7 +68,7 @@ rusage(void)
 #endif	/* RUSAGE */
 
 void
-lmbench_usage(int argc, char *argv[], char* usage)
+lmbench_usage(int argc, char * __raw argv[], char* usage)
 {
 	fprintf(stderr,"Usage: %s %s", argv[0], usage);
 	exit(-1);
@@ -78,16 +79,16 @@ void
 sigchld_wait_handler(int signo)
 {
 	wait(0);
-	signal(SIGCHLD, sigchld_wait_handler);
+	signal(SIGCHLD, (__raw __sighandler_t *)sigchld_wait_handler);
 }
 
 static int	benchmp_sigterm_received;
 static int	benchmp_sigchld_received;
 static pid_t	benchmp_sigalrm_pid;
 static int	benchmp_sigalrm_timeout;
-void (*benchmp_sigterm_handler)(int);
-void (*benchmp_sigchld_handler)(int);
-void (*benchmp_sigalrm_handler)(int);
+__raw __sighandler_t *benchmp_sigterm_handler;
+__raw __sighandler_t *benchmp_sigchld_handler;
+__raw __sighandler_t *benchmp_sigalrm_handler;
 
 void
 benchmp_sigterm(int signo)
@@ -218,8 +219,8 @@ benchmp(benchmp_f initialize,
 	/* fork the necessary children */
 	benchmp_sigchld_received = 0;
 	benchmp_sigterm_received = 0;
-	benchmp_sigterm_handler = signal(SIGTERM, benchmp_sigterm);
-	benchmp_sigchld_handler = signal(SIGCHLD, benchmp_sigchld);
+	benchmp_sigterm_handler = signal(SIGTERM, (__raw __sighandler_t *)benchmp_sigterm);
+	benchmp_sigchld_handler = signal(SIGCHLD, (__raw __sighandler_t *)benchmp_sigchld);
 	pids = (pid_t*)malloc(parallel * sizeof(pid_t));
 	if (!pids) return;
 	bzero((void*)pids, parallel * sizeof(pid_t));
@@ -308,13 +309,13 @@ cleanup_exit:
 	while (i-- > 0) {
 		/* wait timeout seconds for child to die, then kill it */
 		benchmp_sigalrm_pid = pids[i];
-		benchmp_sigalrm_handler = signal(SIGALRM, benchmp_sigalrm);
+		benchmp_sigalrm_handler = signal(SIGALRM, (__raw __sighandler_t *)benchmp_sigalrm);
 		alarm(benchmp_sigalrm_timeout); 
 
 		waitpid(pids[i], NULL, 0);
 
 		alarm(0);
-		signal(SIGALRM, benchmp_sigalrm_handler);
+		signal(SIGALRM, (__raw __sighandler_t *)benchmp_sigalrm_handler);
 	}
 
 	if (pids) free(pids);
@@ -563,11 +564,11 @@ benchmp_child_sigterm(int signo)
 {
 	signal(SIGTERM, SIG_IGN);
 	if (_benchmp_child_state.cleanup) {
-		void (*sig)(int) = signal(SIGCHLD, SIG_DFL);
-		if (sig != benchmp_child_sigchld && sig != SIG_DFL) {
+		__raw __sighandler_t *sig = signal(SIGCHLD, SIG_DFL);
+		if (sig != (__raw __sighandler_t *)benchmp_child_sigchld && sig != SIG_DFL) {
 			signal(SIGCHLD, sig);
 		}
-		(*_benchmp_child_state.cleanup)(0, &_benchmp_child_state);
+		(*_benchmp_child_state.cleanup)(0, (void*)&_benchmp_child_state);
 	}
 	exit(0);
 }
@@ -630,19 +631,19 @@ benchmp_child(benchmp_f initialize,
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
-	if (benchmp_sigchld_handler != SIG_DFL) {
-		signal(SIGCHLD, benchmp_sigchld_handler);
+	if ((__raw __sighandler_t *)benchmp_sigchld_handler != SIG_DFL) {
+		signal(SIGCHLD, (__raw __sighandler_t *)benchmp_sigchld_handler);
 	} else {
-		signal(SIGCHLD, benchmp_child_sigchld);
+		signal(SIGCHLD, (__raw __sighandler_t *)benchmp_child_sigchld);
 	}
 
 	if (initialize)
 		(*initialize)(0, cookie);
 	
-	if (benchmp_sigterm_handler != SIG_DFL) {
-		signal(SIGTERM, benchmp_sigterm_handler);
+	if ((__raw __sighandler_t *)benchmp_sigterm_handler != SIG_DFL) {
+		signal(SIGTERM, (__raw __sighandler_t *)benchmp_sigterm_handler);
 	} else {
-		signal(SIGTERM, benchmp_child_sigterm);
+		signal(SIGTERM, (__raw __sighandler_t *)benchmp_child_sigterm);
 	}
 	if (benchmp_sigterm_received)
 		benchmp_child_sigterm(SIGTERM);
@@ -651,7 +652,7 @@ benchmp_child(benchmp_f initialize,
 	insertinit(_benchmp_child_state.r);
 
 	while (1) {
-		(*benchmark)(benchmp_interval(&_benchmp_child_state), cookie);
+		(*benchmark)(benchmp_interval((void*)&_benchmp_child_state), cookie);
 	}
 }
 
@@ -670,7 +671,7 @@ benchmp_interval(void* _state)
 	if (!state->need_warmup) {
 		result = stop(0,0);
 		if (state->cleanup) {
-			if (benchmp_sigchld_handler == SIG_DFL)
+			if ((__raw __sighandler_t *)benchmp_sigchld_handler == SIG_DFL)
 				signal(SIGCHLD, SIG_DFL);
 			(*state->cleanup)(iterations, state->cookie);
 		}
@@ -681,7 +682,7 @@ benchmp_interval(void* _state)
 
 	/* if the parent died, then give up */
 	if (getppid() == 1 && state->cleanup) {
-		if (benchmp_sigchld_handler == SIG_DFL)
+		if ((__raw __sighandler_t *)benchmp_sigchld_handler == SIG_DFL)
 			signal(SIGCHLD, SIG_DFL);
 		(*state->cleanup)(0, state->cookie);
 		exit(0);
@@ -753,7 +754,7 @@ benchmp_interval(void* _state)
 			read(state->result_signal, (void*)&c, sizeof(char));
 			write(state->response, (void*)get_results(), state->r_size);
 			if (state->cleanup) {
-				if (benchmp_sigchld_handler == SIG_DFL)
+				if ((__raw __sighandler_t *)benchmp_sigchld_handler == SIG_DFL)
 					signal(SIGCHLD, SIG_DFL);
 				(*state->cleanup)(0, state->cookie);
 			}
@@ -775,7 +776,7 @@ benchmp_interval(void* _state)
  * Redirect output someplace else.
  */
 void
-timing(FILE *out)
+timing(__raw FILE *out)
 {
 	ftiming = out;
 }
@@ -1436,6 +1437,7 @@ enough_duration(register long N, register TYPE ** p)
 {
 #define	ENOUGH_DURATION_TEN(one)	one one one one one one one one one one
 	while (N-- > 0) {
+		p = (TYPE**)__builtin_riscv_xsig_break_recover(p);
 		ENOUGH_DURATION_TEN(p = (TYPE **) *p;);
 	}
 	return (p);

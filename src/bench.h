@@ -266,7 +266,7 @@ extern	int	optind;
 extern	int	opterr;
 extern	int	optopt;
 extern	char	*optarg;
-int	getopt(int ac, char **av, char *opts);
+int	getopt(int ac, char * __raw *av, char *opts);
 
 typedef u_long iter_t;
 typedef void (*benchmp_f)(iter_t iterations, void* cookie);
@@ -328,6 +328,6 @@ extern int handle_scheduler(int childno, int benchproc, int nbenchprocs);
 extern char *rpc_xact_1();
 extern char *client_rpc_xact_1();
 
-void lmbench_usage(int argc, char *argv[], char* usage);
+void lmbench_usage(int argc, char * __raw argv[], char* usage);
 
 #endif /* _BENCH_H */

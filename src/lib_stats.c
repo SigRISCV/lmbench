@@ -3,6 +3,8 @@
 
 #define BOOTSTRAP_COUNT	200
 
+
+typedef int __compar_fn_t(const void *, const void *);
 /*
  * a comparison function used by qsort
  */
@@ -42,7 +44,7 @@ double_compare(const void *a, const void *b)
 int
 int_median(int *values, int size)
 {
-	qsort(values, size, sizeof(int), int_compare);
+	qsort(values, size, sizeof(int), (__raw __compar_fn_t*)int_compare);
 
 	if (size == 0) return 0.;
 
@@ -59,7 +61,7 @@ int_median(int *values, int size)
 uint64
 uint64_median(uint64 *values, int size)
 {
-	qsort(values, size, sizeof(uint64), uint64_compare);
+	qsort(values, size, sizeof(uint64), (__raw __compar_fn_t*)uint64_compare);
 
 	if (size == 0) return 0.;
 
@@ -76,7 +78,7 @@ uint64_median(uint64 *values, int size)
 double
 double_median(double *values, int size)
 {
-	qsort(values, size, sizeof(double), double_compare);
+	qsort(values, size, sizeof(double), (__raw __compar_fn_t*)double_compare);
 
 	if (size == 0) return 0.;
 
