@@ -132,7 +132,7 @@ server_main()
 	int     newsock, sock;
 
 	GO_AWAY;
-	signal(SIGCHLD, sigchld_wait_handler);
+	signal(SIGCHLD, (__raw __sighandler_t *)sigchld_wait_handler);
 	sock = tcp_server(TCP_XACT, SOCKOPT_REUSE);
 	for (;;) {
 		newsock = tcp_accept(sock, SOCKOPT_NONE);

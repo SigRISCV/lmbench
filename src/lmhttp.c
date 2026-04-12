@@ -85,9 +85,9 @@ main(int ac, char **av)
 	bufs[1] = valloc(XFERSIZE);
 	bufs[2] = valloc(XFERSIZE);
 	logfile = open(LOGFILE, O_CREAT|O_APPEND|O_WRONLY, 0666);
-	signal(SIGINT, die);
-	signal(SIGHUP, die);
-	signal(SIGTERM, die);
+	signal(SIGINT, (__raw __sighandler_t *)die);
+	signal(SIGHUP, (__raw __sighandler_t *)die);
+	signal(SIGTERM, (__raw __sighandler_t *)die);
 	for (i = 1; i < fflg; ++i) {
 		if (fork() <= 0) {
 			break;
@@ -121,8 +121,8 @@ char	*http_time()
 {
 	time_t	tt;
 	static	time_t save_tt;
-	struct	tm *t;
-	static	struct tm save_tm;
+	__raw struct	tm *t;
+	static	__raw struct tm save_tm;
 	static	char buf[100];
 
 	time(&tt);		/* costs 10 usecs */
@@ -276,7 +276,7 @@ isdir(char *name)
 void
 dodir(char *name, int sock)
 {
-	FILE	*p;
+	__raw FILE	*p;
 	char	buf[1024];
 	char	path[1024];
 

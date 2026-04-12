@@ -160,11 +160,11 @@ void
 set_alarm(uint64 usecs)
 {
 	struct itimerval value;
-	struct sigaction sa;
+	__raw struct sigaction sa;
 
 	alarm_triggered = 0;
 
-	sa.sa_handler = gotalarm;
+	sa.sa_handler = (__raw __sighandler_t *)gotalarm;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sigaction(SIGALRM, &sa, 0);

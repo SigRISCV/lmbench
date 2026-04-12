@@ -86,7 +86,7 @@ int	norepeats = -1;
 
 uint64	getarg();
 int	been_there(uint64 off);
-int	getfile(char *s, int ac, char **av);
+int	getfile(char *s, int ac, char * __raw *av);
 
 char   *cmds[] = {
 	"bs",			/* block size */
@@ -188,8 +188,8 @@ main(int ac, char **av)
 	for (i = 1; i < ac; ++i) {
 		chkarg(av[i]);
 	}
-	signal(SIGINT, done);
-	signal(SIGALRM, done);
+	signal(SIGINT, (__raw __sighandler_t *)done);
+	signal(SIGALRM, (__raw __sighandler_t *)done);
 	misses = mismatch = getarg("mismatch=", ac, av);
 	inpat = getarg("ipat=", ac, av);
 	outpat = getarg("opat=", ac, av);
@@ -729,7 +729,7 @@ done(void)
 }
 
 uint64 
-getarg(char *s, int ac, char **av)
+getarg(char *s, int ac, char * __raw *av)
 {
 	register uint64 len, i;
 
@@ -763,7 +763,7 @@ getarg(char *s, int ac, char **av)
 char	*output;
 
 int 
-getfile(char *s, int ac, char **av)
+getfile(char *s, int ac, char * __raw *av)
 {
 	register int ret, len, i;
 	int	append = getarg("append=", ac, av) != -1;

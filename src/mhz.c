@@ -186,7 +186,7 @@ filter_data(double values[], int size)
 	double *d = (double *)malloc((size + 1) * sizeof(double));
 
 	for (i = 0; i < size; ++i) d[i] = values[i];
-	qsort(d, size, sizeof(double), double_compare);
+	qsort(d, size, sizeof(double), (__raw compar_fn_t *)double_compare);
 
 	median = d[size/2];
 	if (size > 0 && size % 2 == 0) median = (median + d[size/2 - 1]) / 2.0;
@@ -219,7 +219,7 @@ classes(double values[], int size)
 	int classid;
 
 	for (i = 0; i < size; ++i) d[i] = values[i];
-	qsort(d, size, sizeof(double), double_compare);
+	qsort(d, size, sizeof(double), (__raw compar_fn_t *)double_compare);
 
 	median = d[size/2];
 	if (size % 2 == 0) median = (median + d[size/2 - 1]) / 2.0;
@@ -245,7 +245,7 @@ mode(double values[], int n)
 	int	i, n_mode, n_curr;
 	int	mode, curr;
 
-	qsort(values, n, sizeof(double), double_compare);
+	qsort(values, n, sizeof(double), (__raw compar_fn_t *)double_compare);
 
 	n_mode = 1;
 	n_curr = 1;

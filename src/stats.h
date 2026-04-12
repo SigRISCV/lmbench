@@ -6,6 +6,7 @@
 
 #define ABS(x)	((x) < 0 ? -(x) : (x))
 
+typedef int	compar_fn_t(const void *a, const void *b);
 int	int_compare(const void *a, const void *b);
 int	uint64_compare(const void *a, const void *b);
 int	double_compare(const void *a, const void *b);

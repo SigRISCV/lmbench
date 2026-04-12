@@ -124,7 +124,7 @@ init(iter_t iterations, void* cookie)
 	state->seq = 0;
 	state->buf = (char*)malloc(state->msize);
 	
-	signal(SIGALRM, timeout);
+	signal(SIGALRM, (__raw __sighandler_t *)timeout);
 	alarm(15);
 }
 

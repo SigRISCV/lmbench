@@ -1300,22 +1300,34 @@ save_median()
 /*
  * The inner loop tracks bench.h but uses a different results array.
  */
-static long *
-one_op(register long *p)
+static long **
+one_op(register long **p)
 {
-	BENCH_INNER(p = (long *)*p;, 0);
+	BENCH_INNER(
+		#if defined(__riscv_xsig)
+			p = (long **)__builtin_riscv_xsig_break_recover(p);
+		#endif
+		p = (long **)*p;, 
+		0
+	);
 	return (p);
 }
 
-static long *
-two_op(register long *p)
+static long **
+two_op(register long **p)
 {
-	BENCH_INNER(p = (long *)*p; p = (long*)*p;, 0);
+	BENCH_INNER(
+		#if defined(__riscv_xsig)
+			p = (long **)__builtin_riscv_xsig_break_recover(p);
+		#endif
+		p = (long **)*p; p = (long **)*p;, 
+		0
+	);
 	return (p);
 }
 
-static long	*p = (long *)&p;
-static long	*q = (long *)&q;
+static long	**p = (long **)&p;
+static long	**q = (long **)&q;
 
 double
 l_overhead(void)
@@ -1437,7 +1449,9 @@ enough_duration(register long N, register TYPE ** p)
 {
 #define	ENOUGH_DURATION_TEN(one)	one one one one one one one one one one
 	while (N-- > 0) {
+	#if defined(__riscv_xsig)
 		p = (TYPE**)__builtin_riscv_xsig_break_recover(p);
+	#endif
 		ENOUGH_DURATION_TEN(p = (TYPE **) *p;);
 	}
 	return (p);

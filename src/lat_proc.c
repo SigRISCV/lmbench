@@ -124,7 +124,7 @@ do_shell(iter_t iterations, void* cookie)
 void 
 do_forkexec(iter_t iterations, void* cookie)
 {
-	char	*nav[2];
+	char	* __raw nav[2];
 
 	signal(SIGCHLD, SIG_DFL);
 	handle_scheduler(benchmp_childid(), 0, 1);

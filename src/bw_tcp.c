@@ -187,7 +187,7 @@ server_main()
 		exit(1);
 	}
 
-	signal(SIGCHLD, sigchld_wait_handler);
+	signal(SIGCHLD, (__raw __sighandler_t *)sigchld_wait_handler);
 	for ( ;; ) {
 		newdata = tcp_accept(data, SOCKOPT_WRITE);
 		switch (fork()) {

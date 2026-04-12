@@ -13,7 +13,7 @@ typedef struct task{
 void execute_task(Task task){
     char command_buf[100];
     sprintf(command_buf, "%s %s", task->program_path, task->program_args);
-    FILE* log_fp = fopen(task->log_filename, "a+");
+    __raw FILE* log_fp = fopen(task->log_filename, "a+");
     printf("execute %s\n", task->task_name);
     fprintf(log_fp, "execute %s\n", task->task_name);
 

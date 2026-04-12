@@ -113,7 +113,7 @@ void
 initialize(iter_t iterations, void *cookie)
 {
     state_t        *state = (state_t*)cookie;
-    struct sigaction sa;
+    __raw struct sigaction sa;
 
     if (iterations) return;
 
@@ -122,7 +122,7 @@ initialize(iter_t iterations, void *cookie)
     value.it_value.tv_sec = 0;
     value.it_value.tv_usec = state->usecs;
 
-    sa.sa_handler = interval;
+    sa.sa_handler = (__raw __sighandler_t *)interval;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGALRM, &sa, 0);

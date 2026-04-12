@@ -36,10 +36,10 @@ do_send(iter_t iterations, void* cookie)
 void
 do_install(iter_t iterations, void* cookie)
 {
-	struct	sigaction sa, old;
+	__raw struct	sigaction sa, old;
 
 	while (iterations-- > 0) {
-		sa.sa_handler = handler;
+		sa.sa_handler = (__raw __sighandler_t *)handler;
 		sigemptyset(&sa.sa_mask);	
 		sa.sa_flags = 0;
 		sigaction(SIGUSR1, &sa, &old);
@@ -50,10 +50,10 @@ void
 do_catch(iter_t iterations, void* cookie)
 {
 	int	me = getpid();
-	struct	sigaction sa, old;
+	__raw struct	sigaction sa, old;
 	double	u;
 
-	sa.sa_handler = handler;
+	sa.sa_handler = (__raw __sighandler_t *)handler;
 	sigemptyset(&sa.sa_mask);	
 	sa.sa_flags = 0;
 	sigaction(SIGUSR1, &sa, &old);
@@ -81,7 +81,7 @@ initialize(iter_t iterations, void* cookie)
 {
 	struct _state* state = (struct _state*)cookie;
 	int	fd;
-	struct	sigaction sa;
+	__raw struct	sigaction sa;
 
 	if (iterations) return;
 
@@ -92,7 +92,7 @@ initialize(iter_t iterations, void* cookie)
 		exit(1);
 	}
 
-	sa.sa_handler = prot;
+	sa.sa_handler = (__raw __sighandler_t *)prot;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sigaction(SIGSEGV, &sa, 0);

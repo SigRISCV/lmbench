@@ -17,7 +17,7 @@ void bench(iter_t iterations, void *cookie);
 void cleanup(iter_t iterations, void *cookie);
 
 typedef struct _state {
-	char**	argv;
+	char* __raw *	argv;
 	pid_t	pid;
 } state_t;
 
@@ -53,7 +53,7 @@ main(int ac, char **av)
 	if (optind >= ac) {
 		lmbench_usage(ac, av, usage);
 	}
-	state.argv = (char**)malloc((ac - optind + 1) * sizeof(char*));
+	state.argv = (char* __raw *)malloc((ac - optind + 1) * sizeof(char*));
 	state.pid = 0;
 	for (i = 0; i < ac - optind; ++i) {
 		state.argv[i] = av[optind + i];
@@ -82,7 +82,7 @@ cleanup(iter_t iterations, void* cookie)
 void 
 bench(register iter_t iterations, void *cookie)
 {
-	state_t *state = (state_t *) cookie;
+	__raw state_t *state = (__raw state_t *) cookie;
 
 	signal(SIGCHLD, SIG_DFL);
 	while (iterations-- > 0) {
