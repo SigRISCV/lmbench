@@ -806,6 +806,7 @@ stop(struct timeval *begin, struct timeval *end)
 		end = &stop_tv;
 	}
 	(void) gettimeofday(end, (struct timezone *) 0);
+	// printf("stop: end time is %d sec and %d usec\n", (int)end->tv_sec, (int)end->tv_usec);
 #ifdef	RUSAGE
 	getrusage(RUSAGE_SELF, &ru_stop);
 #endif
@@ -886,12 +887,14 @@ get_n(void)
 /*
  * Make the time spend be usecs.
  */
-void
-settime(uint64 usecs)
+
+void settime(uint64 usecs)
 {
+	// printf("settime1: usecs = %lu, stop time is %ld sec and %ld usec\n", usecs, usecs / 1000000, usecs % 1000000);
 	bzero((void*)&start_tv, sizeof(start_tv));
 	stop_tv.tv_sec = usecs / 1000000;
 	stop_tv.tv_usec = usecs % 1000000;
+	// printf("settime2: stop time is %ld sec and %ld usec\n", stop_tv.tv_sec, stop_tv.tv_usec);
 }
 
 void
@@ -1106,6 +1109,10 @@ tvsub(struct timeval * tdiff, struct timeval * t1, struct timeval * t0)
 	if (tdiff->tv_usec < 0 && tdiff->tv_sec > 0) {
 		tdiff->tv_sec--;
 		tdiff->tv_usec += 1000000;
+		if (tdiff->tv_usec < 0) {
+			printf("t0->tv_sec=%d, t0->tv_usec=%d, t1->tv_sec=%d, t1->tv_usec=%d\n",
+			    (int)t0->tv_sec, (int)t0->tv_usec, (int)t1->tv_sec, (int)t1->tv_usec);
+		}
 		assert(tdiff->tv_usec >= 0);
 	}
 
