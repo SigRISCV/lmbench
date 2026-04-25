@@ -888,6 +888,7 @@ get_n(void)
  * Make the time spend be usecs.
  */
 
+__attribute__((__noinline__))
 void settime(uint64 usecs)
 {
 	// printf("settime1: usecs = %lu, stop time is %ld sec and %ld usec\n", usecs, usecs / 1000000, usecs % 1000000);
