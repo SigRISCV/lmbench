@@ -11,8 +11,8 @@ typedef struct task{
 }* Task;
 
 void execute_task(Task task){
-    char command_buf[100];
-    sprintf(command_buf, "%s %s", task->program_path, task->program_args);
+    char command_buf[512];
+    snprintf(command_buf, sizeof(command_buf), "%s %s", task->program_path, task->program_args);
     __raw FILE* log_fp = fopen(task->log_filename, "a+");
     printf("execute %s\n", task->task_name);
     fprintf(log_fp, "execute %s\n", task->task_name);
@@ -35,6 +35,7 @@ int main(){
     system("mkdir /tmp/lat_fs");
     system("touch /tmp/lat_fs/lmbench");
     system("cp hello /tmp/hello");
+    setenv("ENOUGH", "5000", 1);
     struct task task_list[] = {
         {
             .task_name = "read",
